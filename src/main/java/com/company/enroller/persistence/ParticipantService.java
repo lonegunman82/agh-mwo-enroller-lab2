@@ -60,6 +60,23 @@ public class ParticipantService {
         return query.list();
     }
 
+    public Collection<Participant> getAll(String key) {
+        String hql = "FROM Participant";
+
+        if (key != null && !key.isEmpty()) {
+            hql += " WHERE login LIKE :key";
+        }
+
+        Query query = connector.getSession().createQuery(hql);
+
+        if (key != null && !key.isEmpty()) {
+            query.setParameter("key", "%" + key + "%");
+        }
+
+        return query.list();
+    }
+
+
 
 
 }

@@ -1,6 +1,7 @@
 package com.company.enroller.controllers;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -65,24 +66,32 @@ public class ParticipantRestController {
 	}
 
 
-
-
 	@RequestMapping(value = "", method = RequestMethod.GET)
-	public ResponseEntity<?> getParticipant(@RequestParam(value="sortBy", defaultValue = "") String sortBy,
-											@RequestParam(value="sortOrder", defaultValue = "") String sortOrder,
-											@RequestParam(value = "key", defaultValue="") String login)
+	public ResponseEntity<?> getParticipants(
+			@RequestParam(required = false) String sortBy,
+			@RequestParam(required = false, defaultValue = "ASC") String sortOrder,
+			@RequestParam(required = false) String key
+	) {
+		Collection<Participant> participants;
 
-		{
-			Collection<Participant> participant = participantService.getAll(sortBy, sortOrder,login);
-
-
-//			if (participant == null) {
-//				return new ResponseEntity(HttpStatus.NOT_FOUND);
-//			}
-			return new ResponseEntity<Collection<Participant>>(participant, HttpStatus.OK);
-
+		if (sortBy != null && sortBy.equals("login")) {
+			if (sortOrder != null && (sortOrder.equals("ASC") || sortOrder.equals("DESC"))) {
+				participants = participantService.getAll(sortBy, sortOrder, "");
+			} else {
+				return new ResponseEntity<>("Niepoprawny parametr sortowania", HttpStatus.BAD_REQUEST);
+			}
+		} else if (sortBy != null && !sortBy.equals("login")) {
+			return new ResponseEntity<>("Niepoprawny parametr sortowania", HttpStatus.BAD_REQUEST);
+		} else if (key != null) {
+			participants = participantService.getAll(key);
+		} else {
+			participants = participantService.getAll();
 
 		}
+
+		return new ResponseEntity<Collection<Participant>>(participants, HttpStatus.OK);
+	}
+
 
 
 }
